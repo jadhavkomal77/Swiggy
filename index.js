@@ -1,12 +1,14 @@
 const mongoose = require("mongoose");
 const express = require("express");
 const cors = require("cors");
+const path = require("path");
 const cookieparser = require("cookie-parser");
 require("dotenv").config({ path: "./.env" });
 
 const app = express();
 app.use(express.json());
 app.use(cookieparser())
+app.use(express.static(path.join(__dirname, "dist")))
 app.use(cors({ origin: "http://localhost:5173", credentials: true }));
 app.use(express.static("upload"))
 
@@ -20,6 +22,7 @@ app.use("/api/hotelDash", require("./routes/hotelDash.route"))
 
 
 app.use("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "dist", "index.html"))
     res.status(404).json({ message: "Resource Not Found" });
 });
 app.use((err, req, res, next) => {

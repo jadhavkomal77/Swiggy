@@ -18,7 +18,6 @@ app.use("/api/user", require("./routes/user.route"))
 app.use("/api/product", require("./routes/product.route"))
 app.use("/api/order", require("./routes/order.route"))
 app.use("/api/hotelDash", require("./routes/hotelDash.route"))
-// app.use("/api/hotel", require("./routes/hotel.route"))
 
 
 app.use("*", (req, res) => {

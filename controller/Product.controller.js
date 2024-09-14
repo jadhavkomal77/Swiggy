@@ -3,7 +3,7 @@ const fs = require("fs")
 const path = require("path")
 const { upload } = require("../utils/uploads")
 const Products = require("../modal/Products")
-
+const cloudinary = require("../utils/cloudinary.confing")
 
 exports.getAllProducts = asyncHandler(async (req, res) => {
     const result = await Products.find()
@@ -12,26 +12,48 @@ exports.getAllProducts = asyncHandler(async (req, res) => {
 })
 
 exports.getProductById = asyncHandler(async (req, res) => {
+    console.log("iddd", req.params.id);
+
     const product = await Products.findById(req.params.id);
+    console.log(product);
+
     if (!product) {
         return res.status(404).json({ message: 'Product not found' });
     }
-    console.log(product);
+
     res.status(200).json(product);
 })
-
 exports.addProducts = asyncHandler(async (req, res) => {
-    upload(req, res, async err => {
+    upload(req, res, async (err) => {
         if (err) {
-            res.status(400).json({ message: "unable to upload iamge" })
+            console.log(err)
+            return res.status(400).json({ message: "upload Error" })
         }
-        console.log(req.user);
 
-        await Products.create({ ...req.body, hero: req.file.filename, hotel: req.user })
-        // await Products.create({ ...req.body, hero: req.file.filename, hotel: req.user })
-        res.status(201).json({ message: "blog create success" })
+        if (req.file.hero) {
+            return res.status(400).json({ message: "Hero Image Is Required" })
+        }
+
+        // console.log(req.file.path)
+        const { secure_url } = await cloudinary.uploader.upload(req.file.path)
+        await Products.create({ ...req.body, hero: secure_url, hotel: req.user })
+        res.json({ message: "hotel dash Add Success" })
     })
 })
+
+// exports.addProducts = asyncHandler(async (req, res) => {
+//     upload(req, res, async err => {
+//         if (err) {
+//             res.status(400).json({ message: "unable to upload iamge" })
+//         }
+//         console.log(req.user);
+
+//         await Products.create({ ...req.body, hero: req.file.filename, hotel: req.user })
+//         // await Products.create({ ...req.body, hero: req.file.filename, hotel: req.user })
+//         res.status(201).json({ message: "blog create success" })
+//     })
+// })
+
 exports.updateProducts = asyncHandler(async (req, res) => {
     upload(req, res, async err => {
         if (err) {
